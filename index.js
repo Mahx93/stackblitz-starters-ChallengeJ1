@@ -5,14 +5,22 @@ const PORT = 3000;
 // Servir les fichiers du dossier public (notre CSS)
 app.use(express.static('public'));
 
-// 1. PAGE D'ACCUEIL : Récupère le personnage depuis SWAPI et l'affiche en HTML
+// 1. PAGE D'ACCUEIL : Récupère un personnage (via query param ou ID 1 par défaut)
 app.get('/', async (req, res) => {
     try {
-        // On récupère les données du personnage principal (ID: 1)
-        const response = await fetch('https://swapi.info/api/people/1');
+        // On récupère le paramètre "id" dans l'URL (ex: /?id=4). S'il n'y en a pas, on prend 1 (Luke)
+        const characterId = req.query.id || 1;
+
+        // On injecte dynamiquement l'ID dans l'URL de l'API
+        const response = await fetch(`https://swapi.info/api/people/${characterId}`);
+        
+        if (!response.ok) {
+            return res.status(404).send("Personnage non trouvé. Essayez un autre ID (ex: 1, 2, 3, 4...) !");
+        }
+
         const character = await response.json();
 
-        // On renvoie la structure HTML demandée avec les variables de l'API
+        // On renvoie le HTML
         res.send(`
             <!DOCTYPE html>
             <html lang="fr">
@@ -59,5 +67,5 @@ app.get('/about', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Le serveur complet tourne sur http://localhost:${PORT}`);
-})
+    console.log(`Le serveur complet avec Query Params tourne sur http://localhost:${PORT}`);
+});
