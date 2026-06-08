@@ -1,24 +1,20 @@
 const express = require('express');
+const path = require('path');
+const axios = require('axios'); // Utilisation d'axios pour une compatibilité parfaite
 const app = express();
 const PORT = 3000;
 
-// Servir les fichiers du dossier public (notre CSS)
+// Servir les fichiers du dossier public de manière absolue
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 1. PAGE D'ACCUEIL : Récupère un personnage (via query param ou ID 1 par défaut)
 app.get('/', async (req, res) => {
     try {
-        // On récupère le paramètre "id" dans l'URL (ex: /?id=4). S'il n'y en a pas, on prend 1 (Luke)
         const characterId = req.query.id || 1;
 
-        // On injecte dynamiquement l'ID dans l'URL de l'API
-        const response = await fetch(`https://swapi.info/api/people/${characterId}`);
-        
-        if (!response.ok) {
-            return res.status(404).send("Personnage non trouvé. Essayez un autre ID (ex: 1, 2, 3, 4...) !");
-        }
-
-        const character = await response.json();
+        // Requête ultra-stable avec Axios
+        const response = await axios.get(`https://swapi.info/api/people/${characterId}`);
+        const character = response.data;
 
         // On renvoie le HTML
         res.send(`
@@ -40,6 +36,7 @@ app.get('/', async (req, res) => {
             </html>
         `);
     } catch (error) {
+        console.error(error);
         res.status(500).send("Erreur lors du chargement des données de l'API Star Wars.");
     }
 });
@@ -73,5 +70,5 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Exportation de l'application pour que Vercel puisse l'exécuter
+// Exportation de l'application pour Vercel
 module.exports = app;
