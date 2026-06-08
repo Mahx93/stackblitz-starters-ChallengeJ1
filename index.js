@@ -3,7 +3,7 @@ const app = express();
 const PORT = 3000;
 
 // Servir les fichiers du dossier public (notre CSS)
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 1. PAGE D'ACCUEIL : Récupère un personnage (via query param ou ID 1 par défaut)
 app.get('/', async (req, res) => {
